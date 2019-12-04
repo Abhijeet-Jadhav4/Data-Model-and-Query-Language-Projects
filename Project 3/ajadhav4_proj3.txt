@@ -1,0 +1,127 @@
+-Solution for Question 1-------------------------------------------------------------------------------------------------
+
+<?xml version = "1.0" encoding = "UTF-8" standalone = "yes" ?>
+<!DOCTYPE TinyExpedia [
+	<!ELEMENT TinyExpedia (Customer+, Airline+, Ticket_order+)>
+
+	<!ELEMENT Customer (name, DOB, Address+)>
+
+	<!ELEMENT name (#PCDATA)>
+	<!ELEMENT DOB (#PCDATA)>
+	<!ELEMENT Address (street, city, state, zipcode)>
+	<!ELEMENT street (#PCDATA)>
+	<!ELEMENT city (#PCDATA)>
+	<!ELEMENT state (#PCDATA)>
+	<!ELEMENT zipcode (#PCDATA)>
+
+	<!ATTLIST Customer passport_number ID #REQUIRED>
+	<!ATTLIST Customer Ticket_order IDREFS #IMPLIED>
+
+	<!ELEMENT Airline (Airline_name)>
+	<!ELEMENT Airline_name (#PCDATA)>
+
+	<!ATTLIST Airline Airline_code ID #REQUIRED>
+
+	<!ELEMENT Ticket_order (Payment_type, Airline_code+)>
+	<!ELEMENT Payment_type (#PCDATA)>
+	<!ELEMENT Airline_code (#PCDATA)>
+		
+    <!ATTLIST Ticket_order order_number ID #REQUIRED>
+	<!ATTLIST Ticket_order Airline_code IDREF #IMPLIED>
+	<!ATTLIST Ticket_order Payment_type (Credit-card|Debit-Card|Cheque) "Cheque">
+]> 
+
+<TinyExpedia>
+	
+	<Customer passport_number = "X12345" Ticket_order="X987">
+		<name>Abhijeet Jadhav</name>
+		<DOB>12/10/1995</DOB>
+		<Address>
+			<street>Heath</street>
+			<city>Buffalo</city>
+			<state>NY</state>
+			<zipcode>14214</zipcode>
+		</Address>
+    </Customer>	
+	
+	<Customer passport_number = "X34567" Ticket_order="X654" >
+		<name>Dilip Yede</name>
+		<DOB>13/10/1995</DOB>
+		<Address>
+			<street>Merrimac</street>
+			<city>Buffalo</city>
+			<state>NY</state>
+			<zipcode>14215</zipcode>
+		</Address>
+		<Address>
+			<street>Englewood</street>
+			<city>Buffalo</city>
+			<state>NY</state>
+			<zipcode>12365</zipcode>
+		</Address>
+	</Customer>	
+	
+	<Airline Airline_code = "X123">
+		<Airline_name>Jet Airways</Airline_name>
+	</Airline>
+	
+	<Airline Airline_code = "X345">
+		<Airline_name>AirIndia</Airline_name>
+	</Airline>
+	
+	<Airline Airline_code = "X678">
+		<Airline_name>AirChina</Airline_name>
+	</Airline>
+	
+	<Ticket_order order_number="X987">
+		<Payment_type>Credit-Card</Payment_type>
+		<Airline_code>X123</Airline_code>
+	</Ticket_order>
+	
+	<Ticket_order order_number = "X654">
+		<Payment_type>Cheque</Payment_type>
+		<Airline_code>X123</Airline_code>
+		<Airline_code>X345</Airline_code>
+	</Ticket_order>
+	
+	<Ticket_order order_number = "X321">
+		<Payment_type>Debit-Card</Payment_type>
+		<Airline_code>X678</Airline_code>
+	</Ticket_order>
+
+</TinyExpedia>
+
+-Solution for Question 2-------------------------------------------------------------------------------------------------
+
+(: answer for 2.1 :)
+xquery version "1.0";
+
+for $x in doc("\db\buildings.xml")/buildings/building
+where $x/type="library"
+return $x
+
+(: answer for 2.2 :)
+xquery version "1.0";
+
+for $x in doc("\db\buildings.xml")/buildings/building
+where $x/department="CSE" and $x/department="EE" 
+return $x
+
+(: answer for 2.3 :)
+xquery version "1.0";
+
+let $file := doc("\db\buildings.xml")
+let $d := (for $x in doc("\db\buildings.xml")/buildings/building
+let $department_name:= $x/department
+where $x/year = "1900" 
+order by $x/department
+return $department_name)
+
+return
+	for $y in distinct-values($d)
+	let $count := count($file/buildings/building[department = $y])
+	return 
+		<result>
+			<department>{$y}</department>
+			<count>{$count}</count>
+		</result>
